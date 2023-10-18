@@ -39,6 +39,9 @@ public class BalanceService {
         balanceRepository = new BalanceRepository(null);
         transactions = new ArrayList<>();
         operationService = new OperationService();
+
+        
+
     }
 
     /**
