@@ -1,8 +1,6 @@
 package org.ylab.domain.models;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 
@@ -11,6 +9,10 @@ import java.util.Objects;
  * Класс описывающий игрока
  */
 public class Player {
+    /**
+     * уникальный id игрока
+     */
+    private long id;
 
     /**
      * пользовательское имя
@@ -27,10 +29,6 @@ public class Player {
     private long balance;
 
     /**
-     * список транзакций игрока
-     */
-    private List<Transaction> playerTransactions;
-    /**
      * дата и время создания пользователя
      */
     private LocalDateTime dateOfRegistration;
@@ -40,11 +38,17 @@ public class Player {
      * @param username пользовательское имя
      * @param password пароль
      */
-    public Player(String username, String password) {
+    public Player(long id, String username, String password, long balance,
+                  LocalDateTime timestamp) {
+        this.id = id;
         this.username = username;
         this.password = password;
-        playerTransactions = new ArrayList<>();
-        dateOfRegistration = LocalDateTime.now();
+        this.balance = balance;
+        this.dateOfRegistration = timestamp;
+    }
+
+    public long getId() {
+        return id;
     }
 
     /**
@@ -95,13 +99,6 @@ public class Player {
         this.balance = balance;
     }
 
-    /**
-     *
-     * @return список транзакций игрока
-     */
-    public List<Transaction> getPlayerTransactions() {
-        return playerTransactions;
-    }
 
     /**
      *

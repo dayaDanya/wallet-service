@@ -1,10 +1,8 @@
 package org.ylab.application;
 
 import org.ylab.domain.models.Player;
-import org.ylab.domain.services.RegistrationService;
+import org.ylab.domain.repos.PlayerRepo;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -15,21 +13,19 @@ public class PlayerService {
     /**
      * статическое поле domain сервис регистрации
      */
-    private final RegistrationService registrationService;
+    private final PlayerRepo playerRepo;
 
     private final EncoderService encoderService;
     /**
      * список игроков
      */
-    private List<Player> players;
 
     /**
      * конструктор
      */
     public PlayerService() {
         encoderService = new EncoderService();
-        registrationService = new RegistrationService();
-        players = new ArrayList<>();
+        playerRepo = new PlayerRepo();
     }
 
     /**
@@ -46,12 +42,9 @@ public class PlayerService {
             return "Username is empty";
         if (password.length() < 8)
             return "Password length must be at least 8 symbols";
-        if (!players.stream().map(Player::getUsername)
-                .toList()
-                .contains(username)) {
-            Player player = registrationService.register(username,
+        if (playerRepo.findByUsername(username).isEmpty()) {
+            playerRepo.save(username,
                     encoderService.encode(password));
-            players.add(player);
 
             return "Successful registration";
         }
@@ -62,16 +55,13 @@ public class PlayerService {
      * метод аутентификации игрока по учетным данным
      *
      * @param username пользовательское имя
-     * @param password пароль
      * @return optional player
      */
     public Optional<Player> authorizePlayer(String username, String password) {
-
-        Player wanted = new Player(username, password);
-
-        return players.stream()
-                .filter(player -> player.getUsername().equals(wanted.getUsername()) &&
-                        encoderService.checkPassword(wanted.getPassword(), player.getPassword()))
-                .findFirst();
+        Optional<Player> wanted = playerRepo.findByUsername(username);
+        if (wanted.isPresent())
+            if(encoderService.checkPassword(password, wanted.get().getPassword()))
+                return wanted;
+        return Optional.empty();
     }
 }

@@ -1,4 +1,4 @@
-package org.ylab.domain.services;
+package org.ylab.domain.repos;
 
 /**
  * интерфейс поведения сервисов возвращающих историю

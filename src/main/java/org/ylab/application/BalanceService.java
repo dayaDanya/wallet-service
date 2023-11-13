@@ -4,12 +4,10 @@ import org.ylab.domain.models.Action;
 import org.ylab.domain.models.Operation;
 import org.ylab.domain.models.Player;
 import org.ylab.domain.models.Transaction;
-import org.ylab.domain.services.BalanceRepository;
-import org.ylab.domain.services.OperationService;
+import org.ylab.domain.repos.PlayerRepo;
+import org.ylab.domain.repos.TransactionRepo;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -17,45 +15,42 @@ import java.util.Optional;
  * Сервис для работы с балансом
  */
 public class BalanceService {
-    /**
-     * репозиторий для работы с балансом
-     */
-    private BalanceRepository balanceRepository;
+
+    private final PlayerRepo playerRepo;
+
 
     /**
-     * список всех транзакций в приложении
+     * репозиторий бд транзакций
      */
-    protected List<Transaction> transactions;
+    private final TransactionRepo transactionRepo;
+
 
     /**
      * сервис для аудита
      */
-    private OperationService operationService;
+    private final OperationService operationService;
 
     /**
      * конструктор инициализирующий поля класса
      */
     public BalanceService() {
-        balanceRepository = new BalanceRepository(null);
-        transactions = new ArrayList<>();
         operationService = new OperationService();
-
-        
-
+        transactionRepo = new TransactionRepo();
+        playerRepo = new PlayerRepo();
     }
 
     /**
      * @return возвращает текущее состояние баланса
      */
-    public long checkBalance() {
+    public long checkBalance(Player player) {
         operationService.saveOperation(
                 new Operation(
-                        balanceRepository.getPlayer(),
+                        player.getId(),
                         Action.CHECK_BALANCE,
                         LocalDateTime.now()
                 )
         );
-        return balanceRepository.checkBalance();
+        return playerRepo.findBalanceById(player.getId());
     }
 
     /**
@@ -69,10 +64,9 @@ public class BalanceService {
      */
     public String login(Optional<Player> player) {
         if (player.isPresent()) {
-            balanceRepository.setPlayer(player.get());
 
             operationService.saveOperation(new Operation(
-                    balanceRepository.getPlayer(),
+                    player.get().getId(),
                     Action.AUTHORIZATION,
                     LocalDateTime.now()));
             return "Success authorization";
@@ -82,17 +76,16 @@ public class BalanceService {
 
     /**
      * Метод возвращающий пустой Optional
-     * Так же записывает в balanceRepository null
-     * и фиксирует данную операцию
+     * <p>
+     * и фиксирующий данную операцию
      *
      * @return пустой Optional
      */
-    public Optional<Player> logout() {
+    public Optional<Player> logout(Player player) {
         operationService.saveOperation(new Operation(
-                balanceRepository.getPlayer(),
+                player.getId(),
                 Action.LOGOUT,
                 LocalDateTime.now()));
-        balanceRepository.setPlayer(null);
         return Optional.empty();
 
     }
@@ -105,10 +98,7 @@ public class BalanceService {
      * false в обратном случае
      */
     protected boolean isUnique(Transaction transaction) {
-        return !transactions.stream()
-                .map(Transaction::getId)
-                .toList()
-                .contains(transaction.getId());
+        return transactionRepo.findById(transaction.getUniqueId()).isEmpty();
     }
 
     /**
@@ -121,29 +111,31 @@ public class BalanceService {
      * @param transaction транзакция
      * @return сообщение о статусе транзакции и состояние счета игрока
      */
-    public String debit(Transaction transaction) {
+    public String debit(Player player, Transaction transaction) {
         if (isUnique(transaction)) {
+            long curBalance = playerRepo.findBalanceById(player.getId());
             if (transaction.getAmount() < 0)
                 return "Withdraw amount must be greater than zero";
-            if (balanceRepository.checkBalance() - transaction.getAmount() >= 0) {
-                balanceRepository.debit(transaction.getAmount());
-                balanceRepository.getHistory().add(transaction);
-                transactions.add(transaction);
+            if (curBalance - transaction.getAmount() >= 0) {
+                curBalance = curBalance - transaction.getAmount();
+                playerRepo.updatePlayerBalance(player.getId(), curBalance);
+                transactionRepo.save(transaction);
+
                 operationService.saveOperation(
                         new Operation(
-                                balanceRepository.getPlayer(),
+                                player.getId(),
                                 Action.TRANSACTION_SUCCESS,
-                                Optional.of(transaction),
+                                transaction.getId(),
                                 LocalDateTime.now()
                         )
                 );
-                return "Successful! Current amount of funds: " + balanceRepository.checkBalance();
+                return "Successful! Current amount of funds: " + curBalance;
             }
             operationService.saveOperation(
                     new Operation(
-                            balanceRepository.getPlayer(),
+                            player.getId(),
                             Action.TRANSACTION_FAIL,
-                            Optional.of(transaction),
+                            transaction.getId(),
                             LocalDateTime.now()
                     )
             );
@@ -151,9 +143,9 @@ public class BalanceService {
         } else {
             operationService.saveOperation(
                     new Operation(
-                            balanceRepository.getPlayer(),
+                            player.getId(),
                             Action.TRANSACTION_FAIL,
-                            Optional.of(transaction),
+                            transaction.getId(),
                             LocalDateTime.now()
                     )
             );
@@ -171,28 +163,28 @@ public class BalanceService {
      * @param transaction транзакция
      * @return возвращает сообщение о статусе транзакции и состояние счета игрока
      */
-    public String credit(Transaction transaction) {
+    public String credit(Player player, Transaction transaction) {
         if (isUnique(transaction)) {
             if (transaction.getAmount() < 0)
                 return "The amount must be greater than zero";
-            balanceRepository.credit(transaction.getAmount());
-            balanceRepository.getHistory().add(transaction);
-            transactions.add(transaction);
+            long balance = player.getBalance() + transaction.getAmount();
+            playerRepo.updatePlayerBalance(player.getId(), balance);
+            transactionRepo.save(transaction);
             operationService.saveOperation(
                     new Operation(
-                            balanceRepository.getPlayer(),
+                            player.getId(),
                             Action.TRANSACTION_SUCCESS,
-                            Optional.of(transaction),
+                            transaction.getId(),
                             LocalDateTime.now()
                     )
             );
-            return "Successful! Current amount of funds: " + balanceRepository.checkBalance();
+            return "Successful! Current amount of funds: " + balance;
         } else {
             operationService.saveOperation(
                     new Operation(
-                            balanceRepository.getPlayer(),
+                            player.getId(),
                             Action.TRANSACTION_FAIL,
-                            Optional.of(transaction),
+                            transaction.getId(),
                             LocalDateTime.now()
                     )
             );
@@ -202,14 +194,15 @@ public class BalanceService {
 
     /**
      * Метод отображения истории
+     *
      * @return Возвращает историю транзакций текущего игрока в виде строки
      * Если текущий пользователь - admin, возвращает аудит действий всех игроков
      */
-    public String checkHistory() {
-        if (balanceRepository.getPlayer().getUsername().equals("admin")) {
+    public String checkHistory(Player player) {
+        if (player.getUsername().equals("admin")) {
             operationService.saveOperation(
                     new Operation(
-                            balanceRepository.getPlayer(),
+                            player.getId(),
                             Action.CHECK_HISTORY,
                             LocalDateTime.now()
                     )
@@ -217,12 +210,12 @@ public class BalanceService {
             return operationService.checkHistory();
         }
         StringBuilder history = new StringBuilder();
-        for (Transaction transaction : balanceRepository.getHistory()) {
+        for (Transaction transaction : transactionRepo.findByPlayerId(player.getId())) {
             history.append(transaction.toString()).append("\n");
         }
         operationService.saveOperation(
                 new Operation(
-                        balanceRepository.getPlayer(),
+                        player.getId(),
                         Action.CHECK_HISTORY,
                         LocalDateTime.now()
                 )

@@ -19,6 +19,7 @@ public class InputService {
      */
     public InputService() {
         this.scanner = new Scanner(System.in);
+
     }
 
     /**

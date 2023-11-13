@@ -11,9 +11,13 @@ import java.util.Optional;
 
 public class Operation {
     /**
+     * идентификатор
+     */
+    private long id;
+    /**
      * Игрок
      */
-    private Player player;
+    private long playerId;
     /**
      * Действие игрока
      */
@@ -25,7 +29,7 @@ public class Operation {
      * Транзакция
      * Обернута в java.util.Optional, для безопасной работы с null
      */
-    private Optional<Transaction> transaction;
+    private long transaction;
 
     /**
      * Дата и время
@@ -39,10 +43,10 @@ public class Operation {
      * @param action действие
      * @param date дата и время
      */
-    public Operation(Player player, Action action, LocalDateTime date) {
-        this.player = player;
+    public Operation(long player, Action action, LocalDateTime date) {
+        this.playerId = player;
         this.action = action;
-        this.transaction = Optional.empty();
+        this.transaction = 0;
         this.date = date;
     }
 
@@ -54,32 +58,68 @@ public class Operation {
      * @param transaction транзакция
      * @param date дата и время
      */
-    public Operation(Player player, Action action, Optional<Transaction> transaction, LocalDateTime date) {
-        this.player = player;
+    public Operation(long player, Action action, long transaction, LocalDateTime date) {
+        this.playerId = player;
+        this.action = action;
+        this.transaction = transaction;
+        this.date = date;
+    }
+
+    /**
+     * Конструктор для создания операции при запросе из бд,
+     * являющейся транзакцией: дебит или кредит
+     * @param player игрок
+     * @param action действие
+     * @param transaction транзакция
+     * @param date дата и время
+     */
+    public Operation(long id, long player, Action action, long transaction, LocalDateTime date) {
+        this.id = id;
+        this.playerId = player;
         this.action = action;
         this.transaction = transaction;
         this.date = date;
     }
 
 
-    /**
-     * Перегруженный метод toString()
-     * @return строка со всеми полями операции
-     */
-    @Override
-    public String toString() {
-        StringBuilder strBuilder = new StringBuilder();
-        strBuilder.append("player=")
-                .append(player.getUsername())
-                .append(", action=")
-                .append(action);
-        if (transaction.isPresent()) {
-            strBuilder.append(", transaction=")
-                    .append(transaction.get());
-        }
-        strBuilder.append(", date=")
-                .append(date)
-                .append("\n");
-        return strBuilder.toString();
+    public long getId() {
+        return id;
     }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public long getPlayerId() {
+        return playerId;
+    }
+
+    public void setPlayerId(long playerId) {
+        this.playerId = playerId;
+    }
+
+    public Action getAction() {
+        return action;
+    }
+
+    public void setAction(Action action) {
+        this.action = action;
+    }
+
+    public long getTransaction() {
+        return transaction;
+    }
+
+    public void setTransaction(long transaction) {
+        this.transaction = transaction;
+    }
+
+    public LocalDateTime getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDateTime date) {
+        this.date = date;
+    }
+
 }

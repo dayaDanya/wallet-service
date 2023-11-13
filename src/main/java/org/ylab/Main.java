@@ -5,12 +5,16 @@ import org.ylab.application.PlayerService;
 import org.ylab.domain.models.Player;
 import org.ylab.domain.models.Transaction;
 import org.ylab.domain.models.TransactionType;
+import org.ylab.infrastructure.input.DBConfig;
 import org.ylab.infrastructure.input.InputService;
 
 import java.util.Optional;
 
 public class Main {
+
     public static void main(String[] args) {
+        DBConfig dbConfig = new DBConfig();
+        dbConfig.connect();
         InputService inputService = new InputService();
         PlayerService playerService = new PlayerService();
         BalanceService balanceService = new BalanceService();
@@ -57,7 +61,7 @@ public class Main {
 
                             switch(choice){
                                 case "1":
-                                    System.out.println(balanceService.checkHistory());
+                                    System.out.println(balanceService.checkHistory(found.get()));
                                     break;
                                 case "2":
                                     found = Optional.empty();
@@ -86,8 +90,8 @@ public class Main {
                                     System.out.println("Enter a unique transaction id");
                                     transId = inputService.scanLong();
                                     System.out.println(
-                                            balanceService.debit(
-                                                    new Transaction(transId, TransactionType.DEBIT, amount)));
+                                            balanceService.debit( found.get(),
+                                                    new Transaction(transId, found.get().getId(), TransactionType.DEBIT, amount)));
                                 }
                                 case "2" -> {
                                     System.out.println("CREDIT OPERATION");
@@ -96,22 +100,23 @@ public class Main {
                                     System.out.println("Enter a unique transaction id");
                                     transId = inputService.scanLong();
                                     System.out.println(
-                                            balanceService.credit(
-                                                    new Transaction(transId, TransactionType.CREDIT, amount)));
+                                            balanceService.credit(found.get(),
+                                                    new Transaction( transId,  found.get().getId(),TransactionType.CREDIT, amount)));
                                 }
                                 case "3" -> {
                                     System.out.println("CHECK BALANCE");
-                                    System.out.println("Current balance is " + balanceService.checkBalance());
+                                    System.out.println("Current balance is " + balanceService.checkBalance(found.get()));
                                 }
                                 case "4" -> {
-                                    if (balanceService.checkHistory().isEmpty())
+                                    String history = balanceService.checkHistory(found.get());
+                                    if (history.isEmpty())
                                         System.out.println("No transactions yet");
                                     else
                                         System.out.println("Your transactions:");
-                                    System.out.println(balanceService.checkHistory());
+                                    System.out.println(history);
                                 }
                                 case "5" -> {
-                                    found = balanceService.logout();
+                                    found = balanceService.logout(found.get());
                                     System.out.println("See you soon<3");
                                 }
                                 default -> System.out.println("Wrong choose, try again");

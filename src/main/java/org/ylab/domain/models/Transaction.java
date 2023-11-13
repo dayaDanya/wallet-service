@@ -10,6 +10,12 @@ public class Transaction {
      */
     private long id;
 
+    private long uniqueId;
+    /**
+     * ID игрока совершившего транзакцию
+     */
+    private long playerId;
+
     /**
      * тип транзакции
      */
@@ -25,10 +31,26 @@ public class Transaction {
      * @param transactionType тип транзакции
      * @param amount сумма транзакции
      */
-    public Transaction(long id, TransactionType transactionType, long amount) {
+    public Transaction(long id, long uniqueId, long playerId,
+                       TransactionType transactionType, long amount) {
         this.id = id;
         this.transactionType = transactionType;
         this.amount = amount;
+        this.uniqueId = uniqueId;
+        this.playerId = playerId;
+    }
+
+    /**
+     * Конструктор для создания транзакции
+     * @param transactionType тип транзакции
+     * @param amount сумма транзакции
+     */
+    public Transaction(long uniqueId, long playerId,
+                       TransactionType transactionType, long amount) {
+        this.transactionType = transactionType;
+        this.amount = amount;
+        this.uniqueId = uniqueId;
+        this.playerId = playerId;
     }
 
     /**
@@ -40,7 +62,6 @@ public class Transaction {
     }
 
     /**
-     *
      * @return тип транзакции
      */
     public TransactionType getTransactionType() {
@@ -54,6 +75,19 @@ public class Transaction {
     public long getAmount(){
         return amount;
     }
+
+    /**
+     *
+     * @return id игрока
+     */
+    public long getPlayerId() {
+        return playerId;
+    }
+
+    public long getUniqueId(){
+        return uniqueId;
+    }
+
 
     /**
      *
