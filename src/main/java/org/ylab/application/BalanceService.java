@@ -4,7 +4,6 @@ import org.ylab.domain.models.Action;
 import org.ylab.domain.models.Operation;
 import org.ylab.domain.models.Player;
 import org.ylab.domain.models.Transaction;
-import org.ylab.domain.repos.OperationRepo;
 import org.ylab.domain.repos.PlayerRepo;
 import org.ylab.domain.repos.TransactionRepo;
 
@@ -93,6 +92,7 @@ public class BalanceService {
      * @return пустой Optional
      */
     public Optional<Player> logout(Player player) {
+        player = playerRepo.findByUsername(player.getUsername()).get();
         operationService.saveOperation(new Operation(
                 player.getId(),
                 Action.LOGOUT,
@@ -109,7 +109,7 @@ public class BalanceService {
      * false в обратном случае
      */
     protected boolean isUnique(Transaction transaction) {
-        return transactionRepo.findById(transaction.getUniqueId()).isEmpty();
+        return transactionRepo.findByUniqueId(transaction.getUniqueId()).isEmpty();
     }
 
     /**
@@ -136,7 +136,7 @@ public class BalanceService {
                         new Operation(
                                 player.getId(),
                                 Action.TRANSACTION_SUCCESS,
-                                transaction.getId(),
+                                transaction.getUniqueId(),
                                 LocalDateTime.now()
                         )
                 );
@@ -146,7 +146,7 @@ public class BalanceService {
                     new Operation(
                             player.getId(),
                             Action.TRANSACTION_FAIL,
-                            transaction.getId(),
+                            transaction.getUniqueId(),
                             LocalDateTime.now()
                     )
             );
@@ -156,7 +156,7 @@ public class BalanceService {
                     new Operation(
                             player.getId(),
                             Action.TRANSACTION_FAIL,
-                            transaction.getId(),
+                            transaction.getUniqueId(),
                             LocalDateTime.now()
                     )
             );
@@ -178,14 +178,15 @@ public class BalanceService {
         if (isUnique(transaction)) {
             if (transaction.getAmount() < 0)
                 return "The amount must be greater than zero";
-            long balance = player.getBalance() + transaction.getAmount();
+            long balance = playerRepo.findBalanceById(player.getId())
+                    + transaction.getAmount();
             playerRepo.updatePlayerBalance(player.getId(), balance);
             transactionRepo.save(transaction);
             operationService.saveOperation(
                     new Operation(
                             player.getId(),
                             Action.TRANSACTION_SUCCESS,
-                            transaction.getId(),
+                            transaction.getUniqueId(),
                             LocalDateTime.now()
                     )
             );
@@ -195,7 +196,7 @@ public class BalanceService {
                     new Operation(
                             player.getId(),
                             Action.TRANSACTION_FAIL,
-                            transaction.getId(),
+                            transaction.getUniqueId(),
                             LocalDateTime.now()
                     )
             );

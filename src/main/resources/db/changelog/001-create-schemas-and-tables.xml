@@ -53,4 +53,11 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="ds" author="dayadanya">
+        <modifyDataType
+                schemaName="entities" tableName="operation"
+                        columnName="transaction_id"
+                        newDataType="VARCHAR"/>
+    </changeSet>
+
 </databaseChangeLog>

@@ -1,6 +1,7 @@
 package org.ylab.application;
 
 import org.ylab.domain.models.Operation;
+import org.ylab.domain.models.dto.OperationDTO;
 import org.ylab.domain.repos.HistoryService;
 import org.ylab.domain.repos.OperationRepo;
 import org.ylab.domain.repos.PlayerRepo;
@@ -39,43 +40,52 @@ public class OperationService implements HistoryService {
 
     /**
      * Метод добавляющий операцию в начало списка
+     *
      * @param operation операция
      */
-    public void saveOperation(Operation operation){
+    public void saveOperation(Operation operation) {
         operationRepo.save(operation);
     }
 
     /**
      * Реализация метода checkHistory,
      * Преобразует список operations в String
+     *
      * @return строка список операций или сообщение об отсутствии операций
      */
     @Override
     public String checkHistory() {
-        List<Operation> operations = operationRepo.findAll();
-        if(!operations.isEmpty()) {
+        List<OperationDTO> operations = operationRepo.findAllOperations();
+        long startTime = System.currentTimeMillis();
+        if (!operations.isEmpty()) {
             StringBuilder history = new StringBuilder();
-            for (Operation operation : operations) {
+            for (OperationDTO operation : operations) {
                 StringBuilder strBuilder = new StringBuilder();
                 strBuilder.append("player=")
-                        .append(playerRepo
-                                .findById(operation.getPlayerId()).get().getUsername())
-
+                        .append(operation.getPlayerName())
                         .append(", action=")
                         .append(operation.getAction());
-                if (operation.getTransaction() != 0) {
+                if (operation.getTransType().isPresent()) {
                     strBuilder.append(", transaction=")
-                            .append(transactionRepo.findById(
-                                    operation.getTransaction()
-                            ));
+                            .append(operation.getTransType());
                 }
+
+
+//                if (!operation.getTransUID().isEmpty()) {
+//                    strBuilder.append(", transaction=")
+//                            .append(transactionRepo.findByUniqueId(
+//                                    operation.getTransUID()
+//                            ));
+//                }
                 strBuilder.append(", date=")
                         .append(operation.getDate())
                         .append("\n");
 
                 history.append(strBuilder).append("\n");
             }
-
+            long endTime = System.currentTimeMillis();
+            long executionTime = endTime - startTime;
+            System.out.println("Время выполнения: " + executionTime + " миллисекунд");
             return history.toString();
         }
         return "No operations yet";

@@ -2,21 +2,20 @@ package org.ylab.domain.repos;
 
 import org.ylab.domain.models.Action;
 import org.ylab.domain.models.Operation;
+import org.ylab.domain.models.TransactionType;
+import org.ylab.domain.models.dto.OperationDTO;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 public class OperationRepo {
     Properties properties;
-    private String URL;
-    private String USER_NAME;
-    private String PASSWORD;
+    private final String URL;
+    private final String USER_NAME;
+    private final String PASSWORD;
 
     public OperationRepo() {
         properties = new Properties();
@@ -38,13 +37,13 @@ public class OperationRepo {
         this.PASSWORD = PASSWORD;
     }
 
-    public void save(Operation operation){
+    public void save(Operation operation) {
         try (Connection connection = DriverManager.getConnection(URL, USER_NAME, PASSWORD)) {
             String insertDataSQL = "INSERT INTO entities.operation (player_id, transaction_id, " +
                     "action, date) VALUES (?, ?, ?, ?)";
             PreparedStatement insertDataStatement = connection.prepareStatement(insertDataSQL);
             insertDataStatement.setLong(1, operation.getPlayerId());
-            insertDataStatement.setLong(2, operation.getTransaction());
+            insertDataStatement.setString(2, operation.getTransUID());
             insertDataStatement.setString(3, operation.getAction().name());
             insertDataStatement.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
             insertDataStatement.executeUpdate();
@@ -53,6 +52,7 @@ public class OperationRepo {
             e.printStackTrace();
         }
     }
+
     public List<Operation> findAll() {
         try (Connection connection = DriverManager.getConnection(URL, USER_NAME, PASSWORD)) {
             String insertDataSQL = "SELECT * FROM entities.operation";
@@ -65,11 +65,8 @@ public class OperationRepo {
                                 resultSet.getLong("id"),
                                 resultSet.getLong("player_id"),
                                 Action.valueOf(resultSet.getString("action")),
-                                resultSet.getLong("transaction_id"),
+                                resultSet.getString("transaction_id"),
                                 resultSet.getTimestamp("date").toLocalDateTime()));
-
-
-
 
             }
             return operations;
@@ -78,4 +75,36 @@ public class OperationRepo {
         }
         return Collections.emptyList();
     }
+
+    public List<OperationDTO> findAllOperations() {
+        try (Connection connection = DriverManager.getConnection(URL, USER_NAME, PASSWORD)) {
+            String insertDataSQL = "SELECT operation.action, operation.date, " +
+                    "player.username, transaction.transaction_type " +
+                    "FROM entities.operation " +
+                    "INNER JOIN entities.player ON operation.player_id = player.id " +
+                    "LEFT JOIN entities.transaction ON operation.transaction_id = transaction.unique_id";
+            PreparedStatement statement = connection.prepareStatement(insertDataSQL);
+            ResultSet resultSet = statement.executeQuery();
+            List<OperationDTO> operations = new ArrayList<>();
+            while (resultSet.next()) {
+                String username = resultSet.getString("username");
+                Action action = Action.valueOf(resultSet.getString("action"));
+                String transTypeStr = resultSet.getString("transaction_type");
+                LocalDateTime date = resultSet.getTimestamp("date").toLocalDateTime();
+                TransactionType transType = null;
+                if (transTypeStr != null) {
+                    transType = TransactionType.valueOf(transTypeStr);
+                }
+                operations.add(
+                        new OperationDTO(username,
+                                action, Optional.ofNullable(transType), date));
+
+            }
+            return operations;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Collections.emptyList();
+    }
+
 }

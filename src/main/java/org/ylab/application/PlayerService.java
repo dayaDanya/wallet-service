@@ -67,8 +67,10 @@ public class PlayerService {
     public Optional<Player> authorizePlayer(String username, String password) {
         Optional<Player> wanted = playerRepo.findByUsername(username);
         if (wanted.isPresent())
-            if(encoderService.checkPassword(password, wanted.get().getPassword()))
+            if(encoderService.checkPassword(password, wanted.get().getPassword())) {
+                System.out.println(wanted.get().getId());
                 return wanted;
+            }
         return Optional.empty();
     }
 }

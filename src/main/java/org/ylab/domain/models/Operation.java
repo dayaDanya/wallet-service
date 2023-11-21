@@ -1,7 +1,6 @@
 package org.ylab.domain.models;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 /**
  * @author dayaDanya
@@ -29,7 +28,7 @@ public class Operation {
      * Транзакция
      * Обернута в java.util.Optional, для безопасной работы с null
      */
-    private long transaction;
+    private String transUID;
 
     /**
      * Дата и время
@@ -46,7 +45,7 @@ public class Operation {
     public Operation(long player, Action action, LocalDateTime date) {
         this.playerId = player;
         this.action = action;
-        this.transaction = 0;
+        this.transUID = "";
         this.date = date;
     }
 
@@ -55,13 +54,13 @@ public class Operation {
      * являющейся транзакцией: дебит или кредит
      * @param player игрок
      * @param action действие
-     * @param transaction транзакция
+     * @param transUID транзакция
      * @param date дата и время
      */
-    public Operation(long player, Action action, long transaction, LocalDateTime date) {
+    public Operation(long player, Action action, String transUID, LocalDateTime date) {
         this.playerId = player;
         this.action = action;
-        this.transaction = transaction;
+        this.transUID = transUID;
         this.date = date;
     }
 
@@ -70,14 +69,14 @@ public class Operation {
      * являющейся транзакцией: дебит или кредит
      * @param player игрок
      * @param action действие
-     * @param transaction транзакция
+     * @param transUID транзакция
      * @param date дата и время
      */
-    public Operation(long id, long player, Action action, long transaction, LocalDateTime date) {
+    public Operation(long id, long player, Action action, String transUID, LocalDateTime date) {
         this.id = id;
         this.playerId = player;
         this.action = action;
-        this.transaction = transaction;
+        this.transUID = transUID;
         this.date = date;
     }
 
@@ -106,12 +105,12 @@ public class Operation {
         this.action = action;
     }
 
-    public long getTransaction() {
-        return transaction;
+    public String getTransUID() {
+        return transUID;
     }
 
-    public void setTransaction(long transaction) {
-        this.transaction = transaction;
+    public void setTransUID(String transUID) {
+        this.transUID = transUID;
     }
 
     public LocalDateTime getDate() {

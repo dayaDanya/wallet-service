@@ -6,11 +6,13 @@ package org.ylab.domain.models;
  */
 public class Transaction {
     /**
-     * уникальный идентификатор транзакции
+     * ID БД
      */
     private long id;
-
-    private long uniqueId;
+    /**
+     * уникальный идентификатор транзакции
+     */
+    private String uniqueId;
     /**
      * ID игрока совершившего транзакцию
      */
@@ -26,12 +28,12 @@ public class Transaction {
     private long amount;
 
     /**
-     * Конструктор для создания транзакции
+     * Конструктор для загрузки транзакции из БД
      * @param id идентификатор
      * @param transactionType тип транзакции
      * @param amount сумма транзакции
      */
-    public Transaction(long id, long uniqueId, long playerId,
+    public Transaction(long id, String uniqueId, long playerId,
                        TransactionType transactionType, long amount) {
         this.id = id;
         this.transactionType = transactionType;
@@ -45,7 +47,7 @@ public class Transaction {
      * @param transactionType тип транзакции
      * @param amount сумма транзакции
      */
-    public Transaction(long uniqueId, long playerId,
+    public Transaction(String uniqueId, long playerId,
                        TransactionType transactionType, long amount) {
         this.transactionType = transactionType;
         this.amount = amount;
@@ -84,7 +86,7 @@ public class Transaction {
         return playerId;
     }
 
-    public long getUniqueId(){
+    public String getUniqueId(){
         return uniqueId;
     }
 

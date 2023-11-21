@@ -6,6 +6,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -16,9 +18,9 @@ import java.util.Properties;
 public class PlayerRepo {
 
     Properties properties;
-    private String URL;
-    private String USER_NAME;
-    private String PASSWORD;
+    private final String URL;
+    private final String USER_NAME;
+    private final String PASSWORD;
 
     public PlayerRepo() {
         properties = new Properties();
@@ -69,11 +71,13 @@ public class PlayerRepo {
             ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
-                return Optional.of(new Player(resultSet.getLong("id"),
+                return Optional.of(new Player(
+                        resultSet.getLong("id"),
                         resultSet.getString("username"),
                         resultSet.getString("password"),
                         resultSet.getLong("balance"),
-                        resultSet.getTimestamp("date_of_registration").toLocalDateTime()));
+                        resultSet.getTimestamp("date_of_registration")
+                                .toLocalDateTime()));
             }
 
         } catch (SQLException e) {
@@ -81,6 +85,7 @@ public class PlayerRepo {
         }
         return Optional.empty();
     }
+
     public Optional<Player> findById(long id) {
         try (Connection connection = DriverManager.getConnection(URL, USER_NAME, PASSWORD)) {
             String insertDataSQL = "SELECT * FROM entities.player WHERE id = ? ";
@@ -102,6 +107,7 @@ public class PlayerRepo {
         }
         return Optional.empty();
     }
+
     public long findBalanceById(long id) {
         try (Connection connection = DriverManager.getConnection(URL, USER_NAME, PASSWORD)) {
             String insertDataSQL = "SELECT balance FROM entities.player WHERE id = ? ";
@@ -120,7 +126,7 @@ public class PlayerRepo {
         return 0;
     }
 
-    public void updatePlayerBalance(long playerId, long balance){
+    public void updatePlayerBalance(long playerId, long balance) {
         try (Connection connection = DriverManager.getConnection(URL, USER_NAME, PASSWORD)) {
             String insertDataSQL = "UPDATE entities.player SET balance= ? WHERE id = ?";
             PreparedStatement statement = connection.prepareStatement(insertDataSQL);
@@ -132,6 +138,35 @@ public class PlayerRepo {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public List<Player> findByIds(List<Long> idList) {
+        List<Player> players = new ArrayList<>();
+        try (Connection connection = DriverManager.getConnection(URL, USER_NAME, PASSWORD)) {
+            // Подготовка SQL-запроса с использованием параметра IN
+            String sql = "SELECT * FROM entities.player WHERE id IN (?)";
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                // Преобразование списка в массив
+                Array array = connection.createArrayOf("LONG", idList.toArray());
+                preparedStatement.setArray(1, array);
+
+                // Выполнение запроса
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    // Обработка результатов запроса
+                    while (resultSet.next()) {
+                        players.add(new Player(resultSet.getLong("id"),
+                                resultSet.getString("username"),
+                                resultSet.getString("password"),
+                                resultSet.getLong("balance"),
+                                resultSet.getTimestamp("date_of_registration").toLocalDateTime()));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return players;
     }
 
 }

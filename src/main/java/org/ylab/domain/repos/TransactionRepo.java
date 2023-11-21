@@ -1,5 +1,6 @@
 package org.ylab.domain.repos;
 
+import org.ylab.domain.models.Player;
 import org.ylab.domain.models.Transaction;
 import org.ylab.domain.models.TransactionType;
 
@@ -11,9 +12,9 @@ import java.util.*;
 public class TransactionRepo {
 
     Properties properties;
-    private String URL;
-    private String USER_NAME;
-    private String PASSWORD;
+    private final String URL;
+    private final String USER_NAME;
+    private final String PASSWORD;
 
     public TransactionRepo() {
         properties = new Properties();
@@ -43,7 +44,7 @@ public class TransactionRepo {
             insertDataStatement.setLong(1, transaction.getPlayerId());
             insertDataStatement.setString(2, transaction.getTransactionType().name());
             insertDataStatement.setLong(3, transaction.getAmount());
-            insertDataStatement.setLong(4, transaction.getUniqueId());
+            insertDataStatement.setString(4, transaction.getUniqueId());
             insertDataStatement.executeUpdate();
 
         } catch (SQLException e) {
@@ -62,13 +63,38 @@ public class TransactionRepo {
             if (resultSet.next()) {
                 return Optional.of(new Transaction(
                                 resultSet.getLong("id"),
-                                resultSet.getLong("unique_id"),
+                                resultSet.getString("unique_id"),
                                 resultSet.getLong("player_id"),
                                 TransactionType.valueOf(
                                         resultSet.getString("transaction_type")),
                                 resultSet
                                         .getLong("amount")
                         ));
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Optional.empty();
+    }
+    public Optional<Transaction> findByUniqueId(String uniqueId) {
+
+        try (Connection connection = DriverManager.getConnection(URL, USER_NAME, PASSWORD)) {
+            String insertDataSQL = "SELECT * FROM entities.transaction WHERE unique_id = ? ";
+            PreparedStatement statement = connection.prepareStatement(insertDataSQL);
+            statement.setString(1, uniqueId);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                return Optional.of(new Transaction(
+                        resultSet.getLong("id"),
+                        resultSet.getString("unique_id"),
+                        resultSet.getLong("player_id"),
+                        TransactionType.valueOf(
+                                resultSet.getString("transaction_type")),
+                        resultSet
+                                .getLong("amount")
+                ));
 
             }
         } catch (SQLException e) {
@@ -88,7 +114,7 @@ public class TransactionRepo {
                 transactions.add(
                         new Transaction(
                                 resultSet.getLong("id"),
-                                resultSet.getLong("unique_id"),
+                                resultSet.getString("unique_id"),
                                 resultSet.getLong("player_id"),
                                 TransactionType.valueOf(
                                         resultSet.getString("transaction_type")),
@@ -103,5 +129,40 @@ public class TransactionRepo {
             e.printStackTrace();
         }
         return Collections.emptyList();
+    }
+
+    public List<Transaction> findByIds(List<Long> idList){
+        List<Transaction> transactions = new ArrayList<>();
+        try (Connection connection = DriverManager.getConnection(URL, USER_NAME, PASSWORD)) {
+            // Подготовка SQL-запроса с использованием параметра IN
+            String sql = "SELECT * FROM entities.transaction WHERE id IN (?)";
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                // Преобразование списка в массив
+                Array array = connection.createArrayOf("LONG", idList.toArray());
+                preparedStatement.setArray(1, array);
+
+                // Выполнение запроса
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    // Обработка результатов запроса
+                    while (resultSet.next()) {
+                        transactions.add(
+                                new Transaction(
+                                        resultSet.getLong("id"),
+                                        resultSet.getString("unique_id"),
+                                        resultSet.getLong("player_id"),
+                                        TransactionType.valueOf(
+                                                resultSet.getString("transaction_type")),
+                                        resultSet
+                                                .getLong("amount")
+                                )
+                        );
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return transactions;
     }
 }

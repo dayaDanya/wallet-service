@@ -9,6 +9,7 @@ import org.ylab.infrastructure.input.MigrationConfig;
 import org.ylab.infrastructure.input.InputService;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public class Main {
 
@@ -48,7 +49,7 @@ public class Main {
                     Optional<Player> found = playerService.authorizePlayer(usernameToAuth, passwordToAuth);
                     System.out.println(balanceService.login(found));
                     while (found.isPresent()) {
-                        
+
                         if (found.get().getUsername().equals("admin")) {
                             System.out.println("==================");
                             System.out.println("ADMIN PANEL");
@@ -59,7 +60,7 @@ public class Main {
                                 choice = inputService.scanChoice().trim();
                             } while (choice.isEmpty());
 
-                            switch(choice){
+                            switch (choice) {
                                 case "1":
                                     System.out.println(balanceService.checkHistory(found.get()));
                                     break;
@@ -81,27 +82,28 @@ public class Main {
                                 choice = inputService.scanChoice().trim();
                             } while (choice.isEmpty());
 
-                            long amount, transId;
+                            long amount;
+                            UUID transId;
                             switch (choice) {
                                 case "1" -> {
                                     System.out.println("DEBIT OPERATION");
                                     System.out.println("Enter the withdrawal amount: ");
                                     amount = inputService.scanLong();
-                                    System.out.println("Enter a unique transaction id");
-                                    transId = inputService.scanLong();
+//                                    System.out.println("Enter a unique transaction id");
+                                    transId = UUID.randomUUID();
                                     System.out.println(
-                                            balanceService.debit( found.get(),
-                                                    new Transaction(transId, found.get().getId(), TransactionType.DEBIT, amount)));
+                                            balanceService.debit(found.get(),
+                                                    new Transaction(transId.toString(), found.get().getId(), TransactionType.DEBIT, amount)));
                                 }
                                 case "2" -> {
                                     System.out.println("CREDIT OPERATION");
                                     System.out.println("Enter the deposit amount: ");
                                     amount = inputService.scanLong();
-                                    System.out.println("Enter a unique transaction id");
-                                    transId = inputService.scanLong();
+//                                    System.out.println("Enter a unique transaction id");
+                                    transId = UUID.randomUUID();
                                     System.out.println(
                                             balanceService.credit(found.get(),
-                                                    new Transaction( transId,  found.get().getId(),TransactionType.CREDIT, amount)));
+                                                    new Transaction(transId.toString(), found.get().getId(), TransactionType.CREDIT, amount)));
                                 }
                                 case "3" -> {
                                     System.out.println("CHECK BALANCE");
