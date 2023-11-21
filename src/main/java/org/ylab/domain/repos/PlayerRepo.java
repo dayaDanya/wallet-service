@@ -2,9 +2,12 @@ package org.ylab.domain.repos;
 
 import org.ylab.domain.models.Player;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.Properties;
 
 /**
  * @author dayaDanya
@@ -12,9 +15,30 @@ import java.util.Optional;
  */
 public class PlayerRepo {
 
-    private static final String URL = "jdbc:postgresql://localhost:32768/wallet-service";
-    private static final String USER_NAME = "daya_danya";
-    private static final String PASSWORD = "daya_danya";
+    Properties properties;
+    private String URL;
+    private String USER_NAME;
+    private String PASSWORD;
+
+    public PlayerRepo() {
+        properties = new Properties();
+        try {
+            FileInputStream fileInputStream = new FileInputStream("C:\\Users\\danil\\Desktop\\тз\\wallet-service\\src\\main\\resources\\application.properties");
+            properties.load(fileInputStream);
+            fileInputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        URL = properties.getProperty("url");
+        USER_NAME = properties.getProperty("db-username");
+        PASSWORD = properties.getProperty("db-password");
+    }
+
+    public PlayerRepo(String URL, String USER_NAME, String PASSWORD) {
+        this.URL = URL;
+        this.USER_NAME = USER_NAME;
+        this.PASSWORD = PASSWORD;
+    }
 
     /**
      * @param username пользовательское имя

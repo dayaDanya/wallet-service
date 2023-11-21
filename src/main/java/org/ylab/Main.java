@@ -5,7 +5,7 @@ import org.ylab.application.PlayerService;
 import org.ylab.domain.models.Player;
 import org.ylab.domain.models.Transaction;
 import org.ylab.domain.models.TransactionType;
-import org.ylab.infrastructure.input.DBConfig;
+import org.ylab.infrastructure.input.MigrationConfig;
 import org.ylab.infrastructure.input.InputService;
 
 import java.util.Optional;
@@ -13,8 +13,8 @@ import java.util.Optional;
 public class Main {
 
     public static void main(String[] args) {
-        DBConfig dbConfig = new DBConfig();
-        dbConfig.connect();
+        MigrationConfig dbConfig = new MigrationConfig();
+        dbConfig.migrate();
         InputService inputService = new InputService();
         PlayerService playerService = new PlayerService();
         BalanceService balanceService = new BalanceService();

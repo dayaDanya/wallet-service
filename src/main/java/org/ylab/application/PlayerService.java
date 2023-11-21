@@ -11,10 +11,12 @@ import java.util.Optional;
  */
 public class PlayerService {
     /**
-     * статическое поле domain сервис регистрации
+     * репо
      */
     private final PlayerRepo playerRepo;
-
+    /**
+     * шифрование
+     */
     private final EncoderService encoderService;
     /**
      * список игроков
@@ -26,6 +28,11 @@ public class PlayerService {
     public PlayerService() {
         encoderService = new EncoderService();
         playerRepo = new PlayerRepo();
+    }
+
+    public PlayerService(PlayerRepo playerRepo) {
+        encoderService = new EncoderService();
+        this.playerRepo = playerRepo;
     }
 
     /**

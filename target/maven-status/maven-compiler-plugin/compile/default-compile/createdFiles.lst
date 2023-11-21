@@ -1,0 +1,17 @@
+org\ylab\domain\repos\OperationRepo.class
+org\ylab\domain\models\Action.class
+org\ylab\domain\repos\BalanceRepository.class
+org\ylab\domain\repos\HistoryService.class
+org\ylab\domain\models\TransactionType.class
+org\ylab\domain\models\Operation.class
+org\ylab\application\BalanceService.class
+org\ylab\domain\repos\PlayerRepo.class
+org\ylab\domain\models\Player.class
+org\ylab\domain\models\Transaction.class
+org\ylab\application\EncoderService.class
+org\ylab\application\PlayerService.class
+org\ylab\domain\repos\TransactionRepo.class
+org\ylab\Main.class
+org\ylab\infrastructure\input\InputService.class
+org\ylab\application\OperationService.class
+org\ylab\infrastructure\input\DBConfig.class

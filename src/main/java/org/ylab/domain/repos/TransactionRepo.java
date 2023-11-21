@@ -3,17 +3,37 @@ package org.ylab.domain.repos;
 import org.ylab.domain.models.Transaction;
 import org.ylab.domain.models.TransactionType;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class TransactionRepo {
 
-    private static final String URL = "jdbc:postgresql://localhost:32768/wallet-service";
-    private static final String USER_NAME = "daya_danya";
-    private static final String PASSWORD = "daya_danya";
+    Properties properties;
+    private String URL;
+    private String USER_NAME;
+    private String PASSWORD;
+
+    public TransactionRepo() {
+        properties = new Properties();
+        try {
+            FileInputStream fileInputStream = new FileInputStream("C:\\Users\\danil\\Desktop\\тз\\wallet-service\\src\\main\\resources\\application.properties");
+            properties.load(fileInputStream);
+            fileInputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        URL = properties.getProperty("url");
+        USER_NAME = properties.getProperty("db-username");
+        PASSWORD = properties.getProperty("db-password");
+    }
+
+    public TransactionRepo(String URL, String USER_NAME, String PASSWORD) {
+        this.URL = URL;
+        this.USER_NAME = USER_NAME;
+        this.PASSWORD = PASSWORD;
+    }
 
     public void save(Transaction transaction) {
         try (Connection connection = DriverManager.getConnection(URL, USER_NAME, PASSWORD)) {

@@ -31,6 +31,12 @@ public class OperationService implements HistoryService {
         playerRepo = new PlayerRepo();
     }
 
+    public OperationService(OperationRepo operationRepo) {
+        this.operationRepo = operationRepo;
+        transactionRepo = new TransactionRepo();
+        playerRepo = new PlayerRepo();
+    }
+
     /**
      * Метод добавляющий операцию в начало списка
      * @param operation операция

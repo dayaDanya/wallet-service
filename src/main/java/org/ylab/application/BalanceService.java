@@ -4,6 +4,7 @@ import org.ylab.domain.models.Action;
 import org.ylab.domain.models.Operation;
 import org.ylab.domain.models.Player;
 import org.ylab.domain.models.Transaction;
+import org.ylab.domain.repos.OperationRepo;
 import org.ylab.domain.repos.PlayerRepo;
 import org.ylab.domain.repos.TransactionRepo;
 
@@ -38,6 +39,16 @@ public class BalanceService {
         transactionRepo = new TransactionRepo();
         playerRepo = new PlayerRepo();
     }
+    /**
+     * конструктор инициализирующий поля класса
+     */
+    public BalanceService(PlayerRepo playerRepo, TransactionRepo transactionRepo, OperationService operationService) {
+        this.playerRepo = playerRepo;
+        this.transactionRepo = transactionRepo;
+        this.operationService = operationService;
+    }
+
+
 
     /**
      * @return возвращает текущее состояние баланса

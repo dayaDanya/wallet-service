@@ -46,6 +46,14 @@ public class Player {
         this.balance = balance;
         this.dateOfRegistration = timestamp;
     }
+    public Player(String username, String password, long balance,
+                  LocalDateTime timestamp) {
+        this.username = username;
+        this.password = password;
+        this.balance = balance;
+        this.dateOfRegistration = timestamp;
+    }
+
 
     public long getId() {
         return id;
