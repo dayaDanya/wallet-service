@@ -45,40 +45,7 @@ public class OperationService  {
      */
 
     public List<OperationDto> checkHistory() {
-       // List<OperationDto> operations =
         return operationRepo.findAllOperations();
-//        long startTime = System.currentTimeMillis();
-//        if (!operations.isEmpty()) {
-//            StringBuilder history = new StringBuilder();
-//            for (OperationDto operation : operations) {
-//                StringBuilder strBuilder = new StringBuilder();
-//                strBuilder.append("player=")
-//                        .append(operation.getPlayerName())
-//                        .append(", action=")
-//                        .append(operation.getAction());
-//                if (operation.getTransType().isPresent()) {
-//                    strBuilder.append(", transaction=")
-//                            .append(operation.getTransType());
-//                }
-//
-//
-////                if (!operation.getTransUID().isEmpty()) {
-////                    strBuilder.append(", transaction=")
-////                            .append(transactionRepo.findByUniqueId(
-////                                    operation.getTransUID()
-////                            ));
-////                }
-//                strBuilder.append(", date=")
-//                        .append(operation.getDate())
-//                        .append("\n");
-//
-//                history.append(strBuilder).append("\n");
-//            }
-//            long endTime = System.currentTimeMillis();
-//            long executionTime = endTime - startTime;
-//            System.out.println("Время выполнения: " + executionTime + " миллисекунд");
-//            return history.toString();
-//        }
-//        return "No operations yet";
+
     }
 }

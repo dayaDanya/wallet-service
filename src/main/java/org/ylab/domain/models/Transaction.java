@@ -1,6 +1,8 @@
 package org.ylab.domain.models;
 
-import org.ylab.annotations.Default;
+
+import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
+import org.ylab.aop.annotations.Default;
 
 /**
  * @author dayaDanya

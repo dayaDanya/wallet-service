@@ -7,11 +7,11 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.mapstruct.factory.Mappers;
 import org.ylab.application.BalanceService;
 import org.ylab.domain.models.Transaction;
 import org.ylab.domain.models.dto.TransactionInputDto;
 import org.ylab.infrastructure.mappers.TransactionInputMapper;
-import org.ylab.infrastructure.mappers.TransactionInputMapperImpl;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,7 +25,7 @@ public class DebitServlet extends HttpServlet {
 
     public DebitServlet() {
         this.balanceService = new BalanceService();
-        this.transactionMapper = new TransactionInputMapperImpl();
+        this.transactionMapper = Mappers.getMapper(TransactionInputMapper.class);
         this.objectMapper = new ObjectMapper();
         this.objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
     }
@@ -46,7 +46,7 @@ public class DebitServlet extends HttpServlet {
         if (!(respStr.equals("Withdraw amount must be greater than zero") ||
                 respStr.equals("Transaction id is not unique") ||
                 respStr.equals("Insufficient funds"))) {
-            resp.setStatus(HttpServletResponse.SC_CREATED);
+            resp.setStatus(HttpServletResponse.SC_OK);
         } else
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         resp.setContentType("plain/text");

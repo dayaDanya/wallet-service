@@ -1,5 +1,6 @@
 package org.ylab.application;
 
+import org.ylab.aop.annotations.Recordable;
 import org.ylab.domain.models.*;
 import org.ylab.domain.repos.PlayerRepo;
 import org.ylab.domain.repos.TransactionRepo;
@@ -11,6 +12,7 @@ import java.util.Optional;
  * @author dayaDanya
  * Сервис для работы с балансом
  */
+@Recordable
 public class BalanceService {
 
     private final PlayerRepo playerRepo;

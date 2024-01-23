@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.mapstruct.factory.Mappers;
+import org.ylab.aop.annotations.Recordable;
 import org.ylab.application.BalanceService;
 import org.ylab.domain.models.Transaction;
 import org.ylab.domain.models.dto.TransactionInputDto;
@@ -16,7 +17,7 @@ import org.ylab.infrastructure.mappers.TransactionInputMapper;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.UUID;
-
+@Recordable
 @WebServlet("/operations/credit")
 public class CreditServlet extends HttpServlet {
 
@@ -46,7 +47,7 @@ public class CreditServlet extends HttpServlet {
         String respStr = balanceService.credit(trans);
         if (!(respStr.equals("The amount must be greater than zero") ||
                 respStr.equals("Transaction id is not unique"))) {
-            resp.setStatus(HttpServletResponse.SC_CREATED);
+            resp.setStatus(HttpServletResponse.SC_OK);
         } else
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         resp.setContentType("plain/text");

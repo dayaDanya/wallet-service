@@ -18,7 +18,7 @@ public class TransactionRepo {
     public TransactionRepo() {
         properties = new Properties();
         try {
-            FileInputStream fileInputStream = new FileInputStream("C:\\Users\\danil\\Desktop\\тз\\wallet-service\\src\\main\\resources\\application.properties");
+            FileInputStream fileInputStream = new FileInputStream("/home/danya/IdeaProjects/wallet-service/src/main/resources/application.properties");
             properties.load(fileInputStream);
             fileInputStream.close();
         } catch (IOException e) {
