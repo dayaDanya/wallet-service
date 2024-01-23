@@ -25,7 +25,7 @@ public class MigrationConfig {
         public MigrationConfig() {
             properties = new Properties();
             try {
-                FileInputStream fileInputStream = new FileInputStream("C:\\Users\\danil\\Desktop\\тз\\wallet-service\\src\\main\\resources\\application.properties");
+                FileInputStream fileInputStream = new FileInputStream("/home/danya/IdeaProjects/wallet-service/src/main/resources/application.properties");
                 properties.load(fileInputStream);
                 fileInputStream.close();
             } catch (IOException e) {
@@ -43,8 +43,8 @@ public class MigrationConfig {
         this.PASSWORD = PASSWORD;
     }
 
-        public void migrate(){
-
+        public void migrate() throws ClassNotFoundException {
+            Class.forName("org.postgresql.Driver");
             try {
                 Connection connection = DriverManager.getConnection(
                         URL,

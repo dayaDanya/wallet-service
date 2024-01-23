@@ -4,7 +4,7 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.5.xsd"
-        logicalFilePath="db/changelog.xml">
+        logicalFilePath="db/changelog/changelog.xml">
 
     <include file="001-create-schemas-and-tables.xml" relativeToChangelogFile="true"/>
     <include file="002-fill-tables.xml" relativeToChangelogFile="true"/>

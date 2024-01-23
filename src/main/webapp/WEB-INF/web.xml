@@ -4,5 +4,7 @@
 
 <web-app>
   <display-name>Archetype Created Web Application</display-name>
-
+<listener>
+  <listener-class>org.ylab.infrastructure.input.MigrationExecutor</listener-class>
+</listener>
 </web-app>
